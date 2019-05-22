@@ -1,10 +1,11 @@
 package main
 
 import(
-	"fmt"
 	"io/ioutil"
 	"encoding/json"
 	"os"
+
+	"github.com/pkg/errors"
 )
 
 type ConnectionInfo struct {
@@ -18,15 +19,20 @@ type ConnectionInfo struct {
 func readConnectionInfo(filename string) (*ConnectionInfo, error) {
 	connectionInfoFile, err := os.Open(filename)
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to open %q", filename)
 	}
 	defer connectionInfoFile.Close()
 
-	connectionInfoBytes, _ := ioutil.ReadAll(connectionInfoFile)
+	connectionInfoBytes, err := ioutil.ReadAll(connectionInfoFile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to read %q", filename)
+	}
 
 	var connectionInfo ConnectionInfo
-	json.Unmarshal(connectionInfoBytes, &connectionInfo)
+	err = json.Unmarshal(connectionInfoBytes, &connectionInfo)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to unmarshal %q", filename)
+	}
 
 	return &connectionInfo, nil
 }

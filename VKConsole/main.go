@@ -3,6 +3,7 @@ package main
 import(
 	"fmt"
 	"math"
+	"os"
 )
 
 var vkc *VKClient
@@ -17,18 +18,22 @@ func main() {
 	//2. Establishing connection to the long poll server
 	ci, err := readConnectionInfo("connectioninfo.json")
 	if err != nil {
-		fmt.Println(err)
-		return
+		fmt.Printf("FATAL: %+v\n", err)
+		os.Exit(1)
 	}
 
-	vkc = NewVKClient(ci.Timeout, ci.Token, ci.Server, ci.Key, ci.Ts)
+	vkc, err = NewVKClient(ci.Timeout, ci.Token, ci.Server, ci.Key, ci.Ts)
+	if err != nil {
+		fmt.Printf("FATAL: %+v\n", err)
+		os.Exit(1)
+	}
 
 	//3. Listening
 	for {
 		lpResp, err := QueryLongPollServer(vkc.Server, vkc.Key, vkc.Ts)
 		if err != nil {
-			fmt.Println(err)
-			return
+			fmt.Printf("FATAL: %+v\n", err)
+			os.Exit(1)
 		}
 
 		vkc.Ts = lpResp.Ts
@@ -38,15 +43,15 @@ func main() {
 				continue
 			case 2:
 				fmt.Println("key timeout")
-				return
+				os.Exit(2)
 				//See point 1
 			case 3:
 				fmt.Println("key and ts timeout")
-				return
+				os.Exit(2)
 				//See point 1
 			case 4:
 				fmt.Println("version is incorrect")
-				return
+				os.Exit(2)
 		}
 
 		for _, update := range lpResp.Updates {
@@ -55,8 +60,8 @@ func main() {
 					userId := int(math.Abs(update[3].(float64)))
 					getUserResp, err := GetUserById(userId, vkc.Token, 5.95)
 					if err != nil {
-						fmt.Println(err)
-						return
+						fmt.Printf("FATAL: %+v\n", err)
+						os.Exit(1)
 					}
 
 					userName := getUserResp.FirstName + " "  + getUserResp.LastName
@@ -68,8 +73,8 @@ func main() {
 					userId := int(math.Abs(update[1].(float64)))
 					getUserResp, err := GetUserById(userId, vkc.Token, 5.95)
 					if err != nil {
-						fmt.Println(err)
-						return
+						fmt.Printf("FATAL: %+v\n", err)
+						os.Exit(1)
 					}
 
 					userName := getUserResp.FirstName + " "  + getUserResp.LastName
@@ -79,8 +84,8 @@ func main() {
 					userId := int(math.Abs(update[1].(float64)))
 					getUserResp, err := GetUserById(userId, vkc.Token, 5.95)
 					if err != nil {
-						fmt.Println(err)
-						return
+						fmt.Printf("FATAL: %+v\n", err)
+						os.Exit(1)
 					}
 
 					userName := getUserResp.FirstName + " "  + getUserResp.LastName

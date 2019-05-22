@@ -4,6 +4,8 @@ import(
 	"net/http"
 	"net/http/cookiejar"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type VKClient struct {
@@ -14,10 +16,14 @@ type VKClient struct {
 	Ts	int
 }
 
-func NewVKClient(timeout int, token string, server string, key string, ts int) (*VKClient) {
+func NewVKClient(timeout int, token string, server string, key string, ts int) (*VKClient, error) {
 	vkc := new(VKClient)
 
-	cookieJar, _ := cookiejar.New(nil)
+	cookieJar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create cookiejar for vkclient")
+	}
+
 	vkc.Client = &http.Client{
 		Jar: cookieJar,
 		Timeout: time.Duration(timeout) * time.Second,
@@ -27,5 +33,5 @@ func NewVKClient(timeout int, token string, server string, key string, ts int) (
 	vkc.Key = key
 	vkc.Ts = ts
 
-	return vkc
+	return vkc, nil
 }
