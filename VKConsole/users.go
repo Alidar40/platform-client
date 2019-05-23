@@ -3,6 +3,7 @@ package main
 import(
 	"fmt"
 	"net/http"
+	"net/url"
 	"encoding/json"
 
 	"github.com/pkg/errors"
@@ -30,8 +31,8 @@ func GetUserById(id int, token string, version float64) (*GetUserResponse, error
 		return nil, errors.Wrapf(err, "failed to create a request to https://api.vk.com/method/users.get")
 	}
 
-	q := req.URL.Query()
-	q.Add("user_ids", fmt.Sprintf("%d", id))//strconv.Itoa(id))
+	q := make(url.Values)
+	q.Add("user_ids", fmt.Sprintf("%d", id))
 	q.Add("access_token", token)
 	q.Add("v", fmt.Sprintf("%.2f", version))
 	req.URL.RawQuery = q.Encode()

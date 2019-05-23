@@ -58,6 +58,13 @@ func main() {
 			switch (update[0].(float64)) {
 				case 4:
 					userId := int(math.Abs(update[3].(float64)))
+					title := update[5].(string)
+					if (userId - 2000000000) > 0 {
+						fmt.Println("New message in one of your chats")
+						fmt.Println("It says: \"" + title + "\"")
+						break
+					}
+
 					getUserResp, err := GetUserById(userId, vkc.Token, 5.95)
 					if err != nil {
 						fmt.Printf("FATAL: %+v\n", err)
@@ -65,8 +72,7 @@ func main() {
 					}
 
 					userName := getUserResp.FirstName + " "  + getUserResp.LastName
-					title := update[5].(string)
-					fmt.Println("New message from " + userName)
+					fmt.Println("New message in conversation with " + userName)
 					fmt.Println("It says: \"" + title + "\"")
 					break
 				case 8:

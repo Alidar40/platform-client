@@ -3,6 +3,7 @@ package main
 import(
 	"fmt"
 	"net/http"
+	"net/url"
 	"encoding/json"
 
 	"github.com/pkg/errors"
@@ -24,7 +25,7 @@ func QueryLongPollServer(server string, key string, ts int) (*LpResponse, error)
 		return nil, errors.Wrapf(err, "failed to created request to https://%q", server)
 	}
 
-	q := req.URL.Query()
+	q := make(url.Values)
 	q.Add("act", "a_check")
 	q.Add("key", key)
 	q.Add("ts", fmt.Sprintf("%d", vkc.Ts))
