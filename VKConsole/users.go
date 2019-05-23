@@ -4,7 +4,6 @@ import(
 	"fmt"
 	"net/http"
 	"encoding/json"
-	"io/ioutil"
 
 	"github.com/pkg/errors"
 )
@@ -38,12 +37,7 @@ func GetUserById(id int, token string, version float64) (*GetUserResponse, error
 	defer resp.Body.Close()
 
 	var getUsersResp GetUsersResponse
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read response from %q", req.URL)
-	}
-
-	err = json.Unmarshal(respBody, &getUsersResp)
+	err = json.NewDecoder(resp.Body).Decode(&getUsersResp)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to unmarshal response from %q", req.URL)
 	}

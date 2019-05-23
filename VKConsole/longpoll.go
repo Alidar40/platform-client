@@ -4,7 +4,6 @@ import(
 	"fmt"
 	"net/http"
 	"encoding/json"
-	"io/ioutil"
 
 	"github.com/pkg/errors"
 )
@@ -41,12 +40,7 @@ func QueryLongPollServer(server string, key string, ts int) (*LpResponse, error)
 	defer resp.Body.Close()
 
 	var lpResp LpResponse
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read response from %q", req.URL)
-	}
-
-	err = json.Unmarshal(respBody, &lpResp)
+	err = json.NewDecoder(resp.Body).Decode(&lpResp)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to unmarshal response from %q", req.URL)
 	}

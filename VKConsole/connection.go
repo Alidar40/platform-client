@@ -1,7 +1,6 @@
 package main
 
 import(
-	"io/ioutil"
 	"encoding/json"
 	"os"
 
@@ -23,13 +22,8 @@ func readConnectionInfo(filename string) (*ConnectionInfo, error) {
 	}
 	defer connectionInfoFile.Close()
 
-	connectionInfoBytes, err := ioutil.ReadAll(connectionInfoFile)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read %q", filename)
-	}
-
 	var connectionInfo ConnectionInfo
-	err = json.Unmarshal(connectionInfoBytes, &connectionInfo)
+	err = json.NewDecoder(connectionInfoFile).Decode(&connectionInfo)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to unmarshal %q", filename)
 	}
