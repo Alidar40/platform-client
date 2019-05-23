@@ -14,7 +14,13 @@ type GetUserResponse struct {
 	LastName	string	`json:"last_name"`
 }
 
+type VKError struct {
+	ErrorCode	int	`json:"error_code"`
+	ErrorMsg	string	`json:"error_msg"`
+}
+
 type GetUsersResponse struct {
+	Error	 VKError		`json:"error,omitempty"`
 	Response []GetUserResponse	`json:"response"`
 }
 
@@ -40,6 +46,10 @@ func GetUserById(id int, token string, version float64) (*GetUserResponse, error
 	err = json.NewDecoder(resp.Body).Decode(&getUsersResp)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to unmarshal response from %q", req.URL)
+	}
+
+	if getUsersResp.Error.ErrorCode != 0 {
+		return nil, errors.Errorf("failed to get user by id=%d with message '%s'", id, getUsersResp.Error.ErrorMsg)
 	}
 
 	return &getUsersResp.Response[0], nil
